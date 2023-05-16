@@ -6,6 +6,7 @@
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const Sahin = {
+    
     load: function () {
       console.log("Sahin loadded:");
     },
