@@ -9,14 +9,12 @@ let savedBodyHTML = null;
 
   const Sahin = {
     load: function () {
-
+      console.log("Sahin loadded:");
     },
 
-    scrollToBotto: function () {
+    scrollToBottom: function () {
         J$('html, body').scrollTop(J$(document).height());
       },
-
-      
 
     clickevery: function (buttonText, intervalTime) {
       var intervalId = setInterval(function () {
@@ -49,14 +47,6 @@ let savedBodyHTML = null;
       link.click();
       URL.revokeObjectURL(url);
     },
-    info() {
-      // Function logic goes here
-      console.log("Sahin Functions:");
-    },
- 
-    windowSave() {
-      savedBodyHTML = document.body.innerHTML;
-    },
 
     waitForText(text) {
       return new Promise((resolve) => {
@@ -81,6 +71,10 @@ let savedBodyHTML = null;
       });
     },
 
+    windowSave() {
+      savedBodyHTML = document.body.innerHTML;
+    },
+
     async windowRestore(timeout) {
       if (savedBodyHTML !== null) {
         await sleep(timeout); // Delay for 4000 milliseconds
@@ -92,6 +86,4 @@ let savedBodyHTML = null;
   window.Sahin = Sahin;
 })();
 
-Sahin.info();
-
-Sahin.windowSave();
+Sahin.load();
