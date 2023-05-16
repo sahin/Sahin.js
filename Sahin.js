@@ -10,7 +10,6 @@
       console.log("Sahin loadded:");
     },
     
-
     scrollToBottom: function () {
       J$("html, body").scrollTop(J$(document).height());
     },
@@ -30,7 +29,7 @@
       }
     },
 
-    clickevery: function (buttonText, intervalTime) {
+    clickEvery: function (buttonText, intervalTime) {
       var intervalId = setInterval(function () {
         // Find the button with the specified text (case-insensitive)
         var button = J$("button").filter(function () {
@@ -62,7 +61,7 @@
       URL.revokeObjectURL(url);
     },
 
-    waitForText(text) {
+    async waitForText(text) {
       return new Promise((resolve) => {
         function checkForText() {
           if (document.body.textContent.includes(text)) {
