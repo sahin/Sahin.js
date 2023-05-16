@@ -13,8 +13,8 @@ let savedBodyHTML = null;
     },
 
     scrollToBottom: function () {
-        J$('html, body').scrollTop(J$(document).height());
-      },
+      J$("html, body").scrollTop(J$(document).height());
+    },
 
     clickevery: function (buttonText, intervalTime) {
       var intervalId = setInterval(function () {
