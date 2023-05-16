@@ -1,5 +1,3 @@
-let savedBodyHTML = null;
-
 (function () {
   "use strict";
 
@@ -11,9 +9,25 @@ let savedBodyHTML = null;
     load: function () {
       console.log("Sahin loadded:");
     },
+    
 
     scrollToBottom: function () {
       J$("html, body").scrollTop(J$(document).height());
+    },
+
+    clickByText: function (buttonText) {
+      var button = J$("button").filter(function () {
+        return J$(this)
+          .text()
+          .toLowerCase()
+          .includes(buttonText.toLowerCase());
+      });
+
+      // Check if the button is found
+      if (button.length > 0) {
+        // Simulate a click event on the button
+        button.click();
+      }
     },
 
     clickevery: function (buttonText, intervalTime) {
