@@ -2,11 +2,11 @@
   "use strict";
 
   let savedBodyHTML = null;
-
+  
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   const Sahin = {
-    
+
     load: function () {
       console.log("Sahin loadded:");
     },
@@ -46,18 +46,18 @@
           button.click();
         } else {
           console.log("Button with text '" + buttonText + "' not found.");
-          clearInterval(intervalId); // Stop the interval
+          //clearInterval(intervalId); // Stop the interval
         }
       }, intervalTime);
     },
 
-    downloadAsJson: function (data) {
+    downloadAsJson: function(data, filename) {
       var json = JSON.stringify(data, null, 2);
       var blob = new Blob([json], { type: "application/json" });
       var url = URL.createObjectURL(blob);
       var link = document.createElement("a");
       link.href = url;
-      link.download = "data.json";
+      link.download = filename || "data.json"; // Set the filename based on the parameter or use "data.json" as default
       link.click();
       URL.revokeObjectURL(url);
     },
@@ -98,6 +98,7 @@
   };
 
   window.Sahin = Sahin;
+
 })();
 
 Sahin.load();
