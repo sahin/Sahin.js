@@ -1,104 +1,184 @@
-(function () {
-  "use strict";
+"use strict";
 
-  let savedBodyHTML = null;
-  
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+let savedBodyHTML = null;
 
-  const Sahin = {
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-    load: function () {
-      console.log("Sahin loadded:");
-    },
-    
-    scrollToBottom: function () {
-      J$("html, body").scrollTop(J$(document).height());
-    },
+const Sahin = {};
+window.Sahin = Sahin;
+Sahin.load = function () {
+  console.log("Sahin loaded:");
+};
+Sahin.load();
 
-    clickByText: function (buttonText) {
-      var button = J$("button").filter(function () {
-        return J$(this)
-          .text()
-          .toLowerCase()
-          .includes(buttonText.toLowerCase());
-      });
 
-      // Check if the button is found
-      if (button.length > 0) {
-        // Simulate a click event on the button
-        button.click();
-      }
-    },
+Sahin.clickByText = function (buttonText) {
+  var button = J$("button").filter(function () {
+    return J$(this)
+      .text()
+      .toLowerCase()
+      .includes(buttonText.toLowerCase());
+  });
 
-    clickEvery: function (buttonText, intervalTime) {
-      var intervalId = setInterval(function () {
-        // Find the button with the specified text (case-insensitive)
-        var button = J$("button").filter(function () {
-          return J$(this)
-            .text()
-            .toLowerCase()
-            .includes(buttonText.toLowerCase());
-        });
+  if (button.length > 0) {
+    button.click();
+  }
+};
 
-        // Check if the button is found
-        if (button.length > 0) {
-          // Simulate a click event on the button
-          button.click();
-        } else {
-          console.log("Button with text '" + buttonText + "' not found.");
-          //clearInterval(intervalId); // Stop the interval
-        }
-      }, intervalTime);
-    },
+Sahin.clickEvery = function (buttonText, intervalTime) {
+  var intervalId = setInterval(function () {
+    var button = J$("button").filter(function () {
+      return J$(this)
+        .text()
+        .toLowerCase()
+        .includes(buttonText.toLowerCase());
+    });
 
-    downloadAsJson: function(data, filename) {
-      var json = JSON.stringify(data, null, 2);
-      var blob = new Blob([json], { type: "application/json" });
-      var url = URL.createObjectURL(blob);
-      var link = document.createElement("a");
-      link.href = url;
-      link.download = filename || "data.json"; // Set the filename based on the parameter or use "data.json" as default
-      link.click();
-      URL.revokeObjectURL(url);
-    },
+    if (button.length > 0) {
+      button.click();
+    } else {
+      console.log("Button with text '" + buttonText + "' not found.");
+    }
+  }, intervalTime);
+};
 
-    async waitForText(text) {
-      return new Promise((resolve) => {
-        function checkForText() {
-          if (document.body.textContent.includes(text)) {
-            J$(document).off("ajaxStop", checkForText);
-            resolve();
+Sahin.convertArrayOfObjectsToCSV = function (args) {
+  var result, ctr, keys, columnDelimiter, lineDelimiter, data;
+
+  data = args.data || null;
+  if (data == null || !data.length) {
+    return null;
+  }
+
+  columnDelimiter = args.columnDelimiter || ",";
+  lineDelimiter = args.lineDelimiter || "\n";
+
+  keys = Object.keys(data[0]);
+
+  result = "";
+  result += keys.join(columnDelimiter);
+  result += lineDelimiter;
+
+  data.forEach(function (item) {
+    ctr = 0;
+    keys.forEach(function (key) {
+      if (ctr > 0) result += columnDelimiter;
+
+      result += item[key];
+      ctr++;
+    });
+    result += lineDelimiter;
+  });
+
+  return result;
+};
+
+Sahin.createObserver = function (textToLookFor, actionFunction) {
+  var observerCallback = function (mutationsList, observer) {
+    for (var mutation of mutationsList) {
+      if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
+        var addedNodes = mutation.addedNodes;
+        for (var node of addedNodes) {
+          if (node.nodeType === 1 && node.textContent.includes(textToLookFor)) {
+            actionFunction();
+            observer.disconnect();
+            return;
           }
         }
-
-        J$(document).on("ajaxStop", checkForText);
-
-        checkForText();
-        const interval = setInterval(checkForText, 100);
-
-        resolve = ((origResolve) => {
-          return () => {
-            clearInterval(interval);
-            origResolve();
-          };
-        })(resolve);
-      });
-    },
-
-    windowSave() {
-      savedBodyHTML = document.body.innerHTML;
-    },
-
-    async windowRestore(timeout) {
-      if (savedBodyHTML !== null) {
-        await sleep(timeout); // Delay for 4000 milliseconds
-        document.body.innerHTML = savedBodyHTML;
       }
-    },
+    }
   };
+  var observer = new MutationObserver(observerCallback);
+  observer.observe(document.body, { childList: true, subtree: true });
+};
 
-  window.Sahin = Sahin;
+Sahin.downloadAsJson = function (data, filename) {
+  var json = JSON.stringify(data, null, 2);
+  var blob = new Blob([json], { type: "application/json" });
+  var url = URL.createObjectURL(blob);
+  var link = document.createElement("a");
+  link.href = url;
+  link.download = filename || "data.json";
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
-})();
+Sahin.downloadCSV = function (args) {
+  var data, filename;
+  var csv = Sahin.convertArrayOfObjectsToCSV({
+    data: args.data,
+  });
+  if (csv == null) return;
 
-Sahin.load();
+  filename = args.filename || "export.csv";
+
+  var blob = new Blob([csv], { type: "text/csv" });
+  var url = URL.createObjectURL(blob);
+
+  var link = document.createElement('a');
+  link.setAttribute('href', url);
+  link.setAttribute('download', filename);
+
+  document.body.appendChild(link);
+  link.click();
+
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
+
+Sahin.formatNumberEUtoUS = function (number) {
+  return number
+    .replace(/\./g, "")
+    .replace(",", ".")
+    .replace(/TL/g, "")
+    .trim();
+};
+
+Sahin.scrollToBottom = function () {
+  J$("html, body").scrollTop(J$(document).height());
+};
+
+Sahin.simulateClick = function (element) {
+  var evt = new MouseEvent("click", {
+    bubbles: true,
+    cancelable: true,
+    view: window,
+  });
+  element.dispatchEvent(evt);
+};
+
+Sahin.waitForText = async function (text) {
+  return new Promise((resolve) => {
+    function checkForText() {
+      if (document.body.textContent.includes(text)) {
+        J$(document).off("ajaxStop", checkForText);
+        resolve();
+      }
+    }
+
+    J$(document).on("ajaxStop", checkForText);
+
+    checkForText();
+    const interval = setInterval(checkForText, 100);
+
+    resolve = ((origResolve) => {
+      return () => {
+        clearInterval(interval);
+        origResolve();
+      };
+    })(resolve);
+  });
+};
+
+Sahin.windowSave = function () {
+  savedBodyHTML = document.body.innerHTML;
+};
+
+Sahin.windowRestore = async function (timeout) {
+  if (savedBodyHTML !== null) {
+    await sleep(timeout);
+    document.body.innerHTML = savedBodyHTML;
+  }
+};
+
+
